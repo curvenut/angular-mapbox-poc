@@ -10,27 +10,37 @@ import * as mapboxgl from 'mapbox-gl';
 })
 export class AppComponent implements OnInit {
   title = 'app';
-  accessToken = env.mapbox.accessToken;
+  mapStyle = 'mapbox://styles/mapbox/streets-v9';
   map: mapboxgl.Map;
 
   ngOnInit(): void {
     this.buildMap();
-
-
   }
 
   private buildMap() {
+    const  accessToken = env.mapbox.accessToken;
     // Hask to mettre le tocken,  normalement
-    (mapboxgl.accessToken as any) = 'pk.eyJ1IjoidmRtLWNtZSIsImEiOiJjamdlMGp5Y2IwMWU2MndwMzVweWg5emc2In0.Tdy8hdMSB8_T8dKZpKhl7A';
+    (mapboxgl.accessToken as any) = accessToken;
 
-    let map = new mapboxgl.Map({
+    this.map = new mapboxgl.Map({
       container: 'map',
-      style: 'mapbox://styles/mapbox/streets-v9',
-      center: [env.mapbox.center.long, env.mapbox.center.long],
+      style: env.mapbox.style,
+      center: [env.mapbox.center.lng, env.mapbox.center.lat],
       zoom: 9
     });
 
 
+    this.initMapEvent();
+
+
+  }
+
+
+  private initMapEvent() {
+
+    this.map.on('load', () => {
+
+    });
   }
 
 }

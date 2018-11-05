@@ -9,10 +9,10 @@ export const environment = {
   mapbox: {
     accessToken : 'pk.eyJ1IjoidmRtLWNtZSIsImEiOiJjamdlMGp5Y2IwMWU2MndwMzVweWg5emc2In0.Tdy8hdMSB8_T8dKZpKhl7A',
     center: {
-      long: -73.567253,
+      lng: -73.567253,
       lat: 45.501690
-    }
-
+    },
+    style : 'mapbox://styles/mapbox/streets-v8',
   }
 };
 
