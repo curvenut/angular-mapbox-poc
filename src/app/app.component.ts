@@ -1,7 +1,7 @@
 import { environment as env } from './../environments/environment';
 import { Component, OnInit } from '@angular/core';
 import * as mapboxgl from 'mapbox-gl';
- 
+
 
 @Component({
   selector: 'app-root',
@@ -12,6 +12,7 @@ export class AppComponent implements OnInit {
   title = 'app';
   mapStyle = 'mapbox://styles/mapbox/streets-v9';
   map: mapboxgl.Map;
+  opened: boolean;
 
   ngOnInit(): void {
     this.buildMap();
