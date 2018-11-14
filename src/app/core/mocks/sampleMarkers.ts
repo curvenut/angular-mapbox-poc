@@ -1,4 +1,5 @@
-{
+/* tslint:disable */
+export const markers = {
     "type": "FeatureCollection",
     "features": [
         {

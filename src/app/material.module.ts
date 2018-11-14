@@ -9,13 +9,6 @@ import {
 } from '@angular/material';
 
 @NgModule({
-  imports: [
-    MatSidenavModule,
-    MatToolbarModule,
-    MatIconModule,
-    MatListModule,
-    MatCheckboxModule
-  ],
   exports: [
     MatSidenavModule,
     MatToolbarModule,
