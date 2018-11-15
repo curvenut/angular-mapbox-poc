@@ -155,7 +155,10 @@ export class AppComponent implements OnInit {
       source: Layers.MARKERS.sourceName,
       layout: {
         'icon-image': 'marker-15',
-        'visibility': 'visible'
+        'visibility': 'visible',
+        'text-field': '{applicantName}',
+        'text-font': ['Open Sans Semibold', 'Arial Unicode MS Bold'],
+
       },
       paint: {
         'icon-color': 'red'
@@ -165,8 +168,8 @@ export class AppComponent implements OnInit {
 
     this.map.addLayer(layer);
 
-    console.log(' map source=%o', this.map.getSource('markers'));
-    console.log(' map layer=%o', this.map.getLayer('markersLayer'));
+    console.log(' map source=%o', this.map.getSource(Layers.MARKERS.sourceName));
+    console.log(' map layer=%o', this.map.getLayer(Layers.MARKERS.name));
   }
 
 
