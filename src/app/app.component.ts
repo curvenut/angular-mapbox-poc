@@ -18,6 +18,7 @@ export class AppComponent implements OnInit {
   mapStyle = 'mapbox://styles/mapbox/streets-v9';
   map: mapboxgl.Map;
   opened: boolean;
+  
 
   constructor(private http: HttpClient) {
 
@@ -50,67 +51,79 @@ export class AppComponent implements OnInit {
 
   private initMapEvent() {
 
-      this.map.on('load', (e) => {
-        // const features = this.map.queryRenderedFeatures(e.point, { layers: ['clusters'] });
-        // const  clusterId = features[0].properties.cluster_id;
 
-        this.addLayers();
-        // (this.map.getSource('markers') as mapboxgl.GeoJSONSource).getClusterExpansionZoom(clusterId,  (err, zoom) => {
-        //     if (err) {
-        //         return;
-        //     }
-        //     const feature = features[0];
-        //     this.map.easeTo({
-        //         center: (feature.geometry as any).coordinates,
-        //         zoom: zoom
-        //     });
-        // });
+    this.map.on('load', (ev) => {
+      // const features = this.map.queryRenderedFeatures(e.point, { layers: ['clusters'] });
+      // const  clusterId = features[0].properties.cluster_id;
+
+
+      this.addLayers();
+      // (this.map.getSource('markers') as mapboxgl.GeoJSONSource).getClusterExpansionZoom(clusterId,  (err, zoom) => {
+      //     if (err) {
+      //         return;
+      //     }
+      //     const feature = features[0];
+      //     this.map.easeTo({
+      //         center: (feature.geometry as any).coordinates,
+      //         zoom: zoom
+      //     });
+      // });
+
+
+
+      this.map.on('click', Layers.MARKERS.name,  (e) => {
+
+
+
+        // Change the cursor style as a UI indicator.
+        this.map.getCanvas().style.cursor = 'pointer';
+
+        const coordinates = (e.features[0].geometry as any).coordinates.slice();
+        let content = 'applicationID  ' + e.features[0].properties.applicationID + '<br>' +
+          'statusConsent ' + e.features[0].properties.statusConsent + '<br>' +
+          'refApplicant ' + e.features[0].properties.refApplicant + '<br>' +
+          'workType ' + e.features[0].properties.workType + '<br>' +
+          'startDate  ' + e.features[0].properties.startDate + '<br>' +
+          'endDate  ' + e.features[0].properties.endDate + '<br>' +
+          'applicantName  ' + e.features[0].properties.applicantName + '<br>' +
+          'statusWP  ' + e.features[0].properties.statusWP + '<br>' +
+          'company  ' + e.features[0].properties.company + '<br>' +
+          'wpLastUpdate ' + e.features[0].properties.wpLastUpdate + '<br>';
+
+        // Ensure that if the map is zoomed out such that multiple
+        // copies of the feature are visible, the popup appears
+        // over the copy being pointed to.
+        while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+          coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+        }
+
+        // Populate the popup and set its coordinates
+        // based on the feature found.
+        new mapboxgl.Popup({
+          closeButton: true,
+          closeOnClick: true
+        }).setLngLat(coordinates)
+          .setHTML(content)
+          .addTo(this.map);
       });
 
-  }
+      this.map.on('mouseenter', Layers.MARKERS.name, () => {
+        this.map.getCanvas().style.cursor = 'pointer';
+      });
+
+      this.map.on('mouseleave', Layers.MARKERS.name, () => {
+        this.map.getCanvas().style.cursor = '';
+
+      });
 
 
-  private addLayers2() {
-   this.map.addLayer({
-      'id': 'maine',
-      'type': 'fill',
-      'source': {
-          'type': 'geojson',
-          'data': {
-              'type': 'Feature',
-              'geometry': {
-                  'type': 'Polygon',
-                  'coordinates': [[[-67.13734351262877, 45.137451890638886],
-                      [-66.96466, 44.8097],
-                      [-68.03252, 44.3252],
-                      [-69.06, 43.98],
-                      [-70.11617, 43.68405],
-                      [-70.64573401557249, 43.090083319667144],
-                      [-70.75102474636725, 43.08003225358635],
-                      [-70.79761105007827, 43.21973948828747],
-                      [-70.98176001655037, 43.36789581966826],
-                      [-70.94416541205806, 43.46633942318431],
-                      [-71.08482, 45.3052400000002],
-                      [-70.6600225491012, 45.46022288673396],
-                      [-70.30495378282376, 45.914794623389355],
-                      [-70.00014034695016, 46.69317088478567],
-                      [-69.23708614772835, 47.44777598732787],
-                      [-68.90478084987546, 47.184794623394396],
-                      [-68.23430497910454, 47.35462921812177],
-                      [-67.79035274928509, 47.066248887716995],
-                      [-67.79141211614706, 45.702585354182816],
-                      [-67.13734351262877, 45.137451890638886]]]
-              }
-          }
-      },
-      'layout': {},
-      'paint': {
-          'fill-color': '#088',
-          'fill-opacity': 0.8
-      }
-  }as any);
+    });
+
+
 
   }
+
+
 
   private addLayers() {
     let layer: mapboxgl.Layer;
@@ -122,20 +135,32 @@ export class AppComponent implements OnInit {
     };
 
 
+    // layer = {
+    //   id: Layers.MARKERS.name,
+    //   type: 'circle',
+    //   source: Layers.MARKERS.sourceName,
+    //   layout: {
+    //     'visibility': 'visible'
+    //   },
+    //   paint: {
+    //     'circle-color': 'red',
+    //     'circle-radius': 5,
+    //     'circle-opacity': 1
+    //   }
+    // };
+
     layer = {
       id: Layers.MARKERS.name,
-      type: 'circle',
+      type: 'symbol',
       source: Layers.MARKERS.sourceName,
       layout: {
+        'icon-image': 'marker-15',
         'visibility': 'visible'
       },
       paint: {
-        'circle-color': 'red',
-        'circle-radius': 5,
-        'circle-opacity': 1
+        'icon-color': 'red'
       }
     };
-
     this.map.addSource(Layers.MARKERS.sourceName , source);
 
     this.map.addLayer(layer);
