@@ -1,10 +1,11 @@
-import { environment as env } from './../environments/environment';
+import { environment as env } from '../environments/environment';
 import { Component, OnInit } from '@angular/core';
 import * as mapboxgl from 'mapbox-gl';
 import { FeatureCollection, Geometry, GeoJsonProperties } from 'geojson';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { markers } from './core/mocks/sampleMarkers';
+import { Layers } from './model/map';
 
 
 @Component({
@@ -36,7 +37,7 @@ export class AppComponent implements OnInit {
       container: 'map',
       style: env.mapbox.style,
       center: [env.mapbox.center.lng, env.mapbox.center.lat],
-      //center : [-71.97722138410576, -13.517379300798098],
+      // center : [-71.97722138410576, -13.517379300798098],
       zoom: 14
     });
 
@@ -112,26 +113,32 @@ export class AppComponent implements OnInit {
   }
 
   private addLayers() {
+    let layer: mapboxgl.Layer;
+    let source: mapboxgl.GeoJSONSourceRaw;
 
-
-    this.map.addSource('markers', {
+    source = {
       type: 'geojson',
-      data : markers as any
-    });
+      data : markers
+    };
 
-    this.map.addLayer({
-      id: 'markersLayer',
+
+    layer = {
+      id: Layers.MARKERS.name,
       type: 'circle',
-      source: 'markers',
+      source: Layers.MARKERS.sourceName,
       layout: {
         'visibility': 'visible'
       },
       paint: {
-        'circle-color': 'yellow',
-        'circle-radius': 20,
+        'circle-color': 'red',
+        'circle-radius': 5,
         'circle-opacity': 1
       }
-    });
+    };
+
+    this.map.addSource(Layers.MARKERS.sourceName , source);
+
+    this.map.addLayer(layer);
 
     console.log(' map source=%o', this.map.getSource('markers'));
     console.log(' map layer=%o', this.map.getLayer('markersLayer'));
