@@ -1,0 +1,58 @@
+{
+    "marker-orange": {
+        "width": 240,
+        "height": 240,
+        "x": 0,
+        "y": 0,
+        "pixelRatio": 8
+    },
+    "marker-green": {
+        "width": 240,
+        "height": 240,
+        "x": 240,
+        "y": 0,
+        "pixelRatio": 8
+    },
+    "marker-gray": {
+        "width": 240,
+        "height": 240,
+        "x": 480,
+        "y": 0,
+        "pixelRatio": 8
+    },
+    "marker-red": {
+        "width": 240,
+        "height": 240,
+        "x": 720,
+        "y": 0,
+        "pixelRatio": 8
+    },
+    "marker-black": {
+        "width": 240,
+        "height": 240,
+        "x": 960,
+        "y": 0,
+        "pixelRatio": 8
+    },
+    "marker-blue": {
+        "width": 240,
+        "height": 240,
+        "x": 1200,
+        "y": 0,
+        "pixelRatio": 8
+    },
+    "marker-lightgreen": {
+        "width": 240,
+        "height": 240,
+        "x": 1440,
+        "y": 0,
+        "pixelRatio": 8
+    },
+    "marker-aqua": {
+        "width": 240,
+        "height": 240,
+        "x": 1680,
+        "y": 0,
+        "pixelRatio": 8
+    }
+}
