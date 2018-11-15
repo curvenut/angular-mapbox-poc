@@ -1,3 +1,5 @@
+import { FeatureCollection, Geometry } from 'geojson';
+
 /* tslint:disable */
 export const markers = {
     "type": "FeatureCollection",
@@ -3108,4 +3110,4 @@ export const markers = {
             }
         }
     ]
-}
+} as FeatureCollection<Geometry>
