@@ -5,7 +5,7 @@ import { FeatureCollection, Geometry, GeoJsonProperties } from 'geojson';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { markers } from './core/mocks/sampleMarkers';
-import { Layers } from './model/map';
+import { Layers } from './shared/models/map';
 
 
 @Component({
@@ -18,7 +18,7 @@ export class AppComponent implements OnInit {
   mapStyle = 'mapbox://styles/mapbox/streets-v9';
   map: mapboxgl.Map;
   opened: boolean;
-  
+
 
   constructor(private http: HttpClient) {
 
@@ -34,6 +34,7 @@ export class AppComponent implements OnInit {
     // Hask to mettre le tocken,  normalement
     (mapboxgl.accessToken as any) = accessToken;
 
+    //  Street V8 : https://www.mapbox.com/vector-tiles/mapbox-streets-v8/
     this.map = new mapboxgl.Map({
       container: 'map',
       style: env.mapbox.style,
@@ -79,7 +80,7 @@ export class AppComponent implements OnInit {
         this.map.getCanvas().style.cursor = 'pointer';
 
         const coordinates = (e.features[0].geometry as any).coordinates.slice();
-        let content = 'applicationID  ' + e.features[0].properties.applicationID + '<br>' +
+        const content = 'applicationID  ' + e.features[0].properties.applicationID + '<br>' +
           'statusConsent ' + e.features[0].properties.statusConsent + '<br>' +
           'refApplicant ' + e.features[0].properties.refApplicant + '<br>' +
           'workType ' + e.features[0].properties.workType + '<br>' +
@@ -159,9 +160,6 @@ export class AppComponent implements OnInit {
         'text-field': '{applicantName}',
         'text-font': ['Open Sans Semibold', 'Arial Unicode MS Bold'],
 
-      },
-      paint: {
-        'icon-color': 'red'
       }
     };
     this.map.addSource(Layers.MARKERS.sourceName , source);

@@ -12,7 +12,7 @@ export const environment = {
       lng: -73.567253,
       lat: 45.501690
     },
-    style : 'mapbox://styles/mapbox/streets-v9',
+    style : 'mapbox://styles/mapbox/streets-v8',
   }
 };
 
