@@ -1,3 +1,4 @@
+import { MapService } from './../services/map.service';
 import { Component, OnInit } from '@angular/core';
 
 @Component({
@@ -9,9 +10,10 @@ export class LeftMenuSidenavComponent implements OnInit {
 
   events: string[] = [];
   opened: boolean;
-  constructor() { }
+  constructor(private mapService: MapService) { }
 
   ngOnInit() {
+    this.mapService.getLayers();
   }
 
 }
