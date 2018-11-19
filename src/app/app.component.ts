@@ -18,7 +18,7 @@ export class AppComponent implements OnInit {
   mapStyle = 'mapbox://styles/mapbox/streets-v9';
   map: mapboxgl.Map;
   opened: boolean;
-
+  mapLayers: mapboxgl.Layer[];
 
   constructor(private http: HttpClient) {
 
@@ -29,6 +29,9 @@ export class AppComponent implements OnInit {
     this.buildMap();
   }
 
+  /**
+   * TODO: move map to a service and add a map component
+   */
   private buildMap() {
     const accessToken = env.mapbox.accessToken;
     // Hask to mettre le tocken,  normalement
@@ -59,6 +62,8 @@ export class AppComponent implements OnInit {
 
 
       this.addLayers();
+
+      this.listLayers();
       // (this.map.getSource('markers') as mapboxgl.GeoJSONSource).getClusterExpansionZoom(clusterId,  (err, zoom) => {
       //     if (err) {
       //         return;
@@ -179,5 +184,20 @@ export class AppComponent implements OnInit {
   private loadDataFile(filePath: string): Observable<FeatureCollection<Geometry, GeoJsonProperties>> {
     return this.http.get<FeatureCollection<Geometry, GeoJsonProperties>>(filePath);
   }
+
+  private listLayers() {
+
+    // Layers street V8 reference : https://www.mapbox.com/vector-tiles/mapbox-streets-v8/#layer-reference
+
+    this.mapLayers = this.map.getStyle().layers;
+
+    console.log(this.mapLayers);
+    console.log(this.map.getLayer(Layers.MARKERS.name));
+    console.log(this.map.getLayoutProperty(Layers.MARKERS.name, 'visibility'));
+    this.map.setLayoutProperty(Layers.MARKERS.name, 'visibility', 'none');
+
+
+  }
+
 
 }
