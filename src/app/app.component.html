@@ -7,12 +7,12 @@
   </mat-sidenav>
 
   <mat-sidenav-content>
-    <!-- <p><mat-checkbox [(ngModel)]="opened">>> </mat-checkbox></p> -->
-    <div id='map'></div>
+    <!-- <p><mat-checkbox [(ngModel)]="opened">>> </mat-checkbox></p> -->    
     <button mat-icon-button (click)="sidenav.toggle()">
       <mat-icon *ngIf="sidenav.opened === false">menu</mat-icon>
       <mat-icon *ngIf="sidenav.opened === true">chevron_left</mat-icon>
     </button>
+    <app-map></app-map>
 
     
 
