@@ -1,3 +1,5 @@
+import { Observable, forkJoin } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment as env } from '../../../environments/environment';
 import * as mapboxgl from 'mapbox-gl';
@@ -14,7 +16,7 @@ export class MapService {
   map: mapboxgl.Map;
   mapLayers: mapboxgl.Layer[];
 
-  constructor() { }
+  constructor(private http: HttpClient) { }
 
   /**
    * TODO: move map to a service and add a map component
@@ -41,6 +43,7 @@ export class MapService {
       // const features = this.map.queryRenderedFeatures(e.point, { layers: ['clusters'] });
       // const  clusterId = features[0].properties.cluster_id;
 
+      this.testMultipleHttp();
 
       this.addLayers();
 
@@ -175,12 +178,67 @@ export class MapService {
     console.log(this.mapLayers);
     console.log(this.map.getLayer(Layers.MARKERS.name));
     console.log(this.map.getLayoutProperty(Layers.MARKERS.name, 'visibility'));
-    this.map.setLayoutProperty(Layers.MARKERS.name, 'visibility', 'none');
-
-
+    // this.map.setLayoutProperty(Layers.MARKERS.name, 'visibility', 'none');
   }
 
   public getLayers() {
     console.log(' getLayers()');
   }
+
+private testMultipleHttp() {
+  const url1 = 'https://swapi.co/api/people';
+  const page = '/?page=';
+  let totalCount: number;
+  const pageCount = 10;
+  let currentCount: number;
+  let urls: string[] = [];
+  let data: any[] = [];
+  const requests: Observable<any>[] = [];
+
+  this.http.get(url1).subscribe( (response) => {
+    totalCount = response.count;
+    currentCount = response.results.length;    
+    urls = this.buildUrl(totalCount, pageCount, url1, page);
+
+    data = data.concat(response.results);
+    console.log('DATA  = %o', data);
+
+    urls.forEach( aUrl => {
+      requests.push(this.http.get(aUrl));
+    });
+    console.log(  ' requests  ===  %o', requests);
+
+    forkJoin(requests).subscribe( results => {
+      console.log('results  = %o', results);
+      results.forEach(element => {
+        data = data.concat(element.results);
+      });
+      console.log('DATA  = %o', data);
+    }, err => {
+      console.error(err);
+    });
+  });
+}
+
+private buildUrl(totalCount: number, pageCount: number, url: string , page: string): string[] {
+  let urls: string[] = [];
+  let pageNumber = Math.floor(totalCount / pageCount);
+  let pageIndex = 2;
+
+  console.log(' pageNumber = %s', pageNumber);
+  // Le modulo est > 0 donc il faut faire un appel pagine de plus 
+  if ( (totalCount % pageCount) > 0 ) {
+    ++pageNumber;
+    console.log(' pageNumber update = %s', pageNumber);
+  }
+
+  for (let index = pageIndex; index <= pageNumber;  index++) {
+    urls.push(url + page + index);
+  }
+  console.log(' URLS = %o', urls);
+  return urls;
+}
+
+
+
 }
