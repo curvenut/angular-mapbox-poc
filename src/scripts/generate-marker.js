@@ -1,13 +1,11 @@
+//usage :  node scripts/mocks/./generate-markers.js --nbr=200
 
-// node src/scripts/generate-marker.js --nbr=200
-
-var request = require("request");
 var turf = require('@turf/turf');
 var fs = require('fs');
 var faker = require('faker');
 var _ = require('lodash');
 
-var geobase = require("./geobase.json");
+var geobase = require("../../geobase.json");
 var sampleSectionsFile = './sampleSections.json';
 var sampleConsentsFile ='./sampleMarkers.json';;
 
@@ -15,26 +13,27 @@ var sampleConsentsFile ='./sampleMarkers.json';;
 var statusConsent = {
     DRAFT: 'draft', 
     SUBMITTED : 'submitted',
-    ANALYSED : 'analyse',
+    REVIEW : 'review',
     REVISE : 'revise',
     REVISED : 'revised',
     REJECTED :'rejected',
-    CLOSED: 'closed',
+    GRANTED : 'granted',
     RETIRED : 'retired',
-    APPROVED : 'approved'
+    CLOSED: 'closed',    
 };
 
+
 var workType = {
-    D1: 'D1', 
-    D2 : 'D2',
-    D3 : 'D3',
-    D4 : 'D4'
+    D1: 'D1 - AÉRIENNE - EXISTANT', 
+    D2 : 'D2 - AÉRIENNE - NOUVEAU',
+    D3 : 'D3 - SOUTERRAINE - EXISTANT',
+    D4 : 'D4 - SOUTERRAINE - NOUVEAU'
 };
 
 var statusWP = {
-    PRESENCE: 'presence', 
-    ACTIVE : 'active',
-    CLOSED : 'closed',
+    PRESENCE: 'teampresence', 
+    BLOCK : 'ongoingblock',
+    NOBLOCK: 'removeblock',
     FINISHED : 'finished'
 };
 
@@ -131,17 +130,49 @@ function createMarkersFC(sampleSections) {
     });
 }
 
+function getIconType(consent, wp) {
+    var type = 'marker-orange';
+
+    if( consent === statusConsent.CLOSED || 
+        consent === statusConsent.RETIRED || 
+        consent === statusConsent.REJECTED) {        
+        type = 'marker-gray';
+    } else if (consent === statusConsent.GRANTED && 
+        !wp) {
+        type = 'marker-green';
+    } else if (consent === statusConsent.GRANTED && 
+        wp) {
+                
+        if( wp === statusWP.PRESENCE ) {
+            //type = 'wp-presence';
+            type = 'marker-black';
+        } else if( wp === statusWP.BLOCK ) {
+            //type = 'wp-ongoingblock';
+            type = 'marker-red';
+        } else if( wp === statusWP.NOBLOCK) {
+            //type = 'wp-noblock';
+            type = 'marker-green';
+        } else {
+            //type = 'wp-finished';
+            type = 'marker-lightgreen';
+        }
+    }
+
+    return type;
+}
+
+
 /**
  * Genere les proprietes , lorsque l<index est pair, generere un consentmeent approvee avec
  * les infos de la workpresence
  */
 function generateProperties(index) {
-    var prop;
+    var prop = {};
     var work;
-    var consent;
-    var wp;
+    var cmStatus;
+    var wpStatus;
 
-    consent  = statusConsent[
+    cmStatus  = statusConsent[
         faker.helpers.replaceSymbolWithNumber(
             faker.random.arrayElement(Object.getOwnPropertyNames(statusConsent))
         )
@@ -151,7 +182,7 @@ function generateProperties(index) {
             faker.random.arrayElement(Object.getOwnPropertyNames(workType))
         )
     ];
-    wp = statusWP[
+    wpStatus = statusWP[
         faker.helpers.replaceSymbolWithNumber(
             faker.random.arrayElement(Object.getOwnPropertyNames(statusWP))
         )
@@ -159,26 +190,25 @@ function generateProperties(index) {
 
     var startDate = faker.date.recent();
     
-    consent = index % 2 === 0 ? 'approved' : consent;
+    cmStatus = index % 2 === 0 ? statusConsent.GRANTED : cmStatus;
+
 
     prop = {
-        applicationID : faker.random.number(10000),
-        statusConsent: consent,
+        applicationID : faker.random.number(9000),
+        statusConsent: cmStatus,
         refApplicant: faker.random.number(10000),
         workType: work,
         startDate: startDate,
         endDate: faker.date.future(1,startDate),
-        applicantName: faker.name.findName()
+        applicantName: faker.name.findName(),
+        iconType: getIconType(cmStatus, wpStatus)
     };
 
-
-    if(prop.statusConsent === 'approved') {
-        prop['statusWP'] = wp;
+    if(cmStatus === statusConsent.GRANTED) {
+        prop['statusWP'] = wpStatus;
         prop['company'] = faker.company.companyName();
         prop['wpLastUpdate'] = faker.date.future(1,startDate);
-        console.log(" ******* statusConsent = "+ consent);
-        console.log("prop  = %o", prop);
-
+        //console.log(" ******* statusConsent = "+ cmStatus + '  mtltravail status= ' + wpStatus);
     }
 
     return prop;
@@ -186,11 +216,8 @@ function generateProperties(index) {
 }
 
 
+
+
+
 generateData(nbrGenerate);
-
-
-
-
-
-
 
