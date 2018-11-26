@@ -61,7 +61,7 @@ export class MapService {
 
 
 
-      this.map.on('click', Layers.MARKERS.name,  (e) => {
+      this.map.on('click', Layers.MARKERS.name, (e) => {
 
 
 
@@ -121,7 +121,7 @@ export class MapService {
 
     source = {
       type: 'geojson',
-      data : markers
+      data: markers
     };
 
 
@@ -151,7 +151,7 @@ export class MapService {
 
       }
     };
-    this.map.addSource(Layers.MARKERS.sourceName , source);
+    this.map.addSource(Layers.MARKERS.sourceName, source);
 
     this.map.addLayer(layer);
 
@@ -185,60 +185,96 @@ export class MapService {
     console.log(' getLayers()');
   }
 
-private testMultipleHttp() {
-  const url1 = 'https://swapi.co/api/people';
-  const page = '/?page=';
-  let totalCount: number;
-  const pageCount = 10;
-  let currentCount: number;
-  let urls: string[] = [];
-  let data: any[] = [];
-  const requests: Observable<any>[] = [];
+  private testMultipleHttp() {
+    const url1 = 'https://swapi.co/api/people';
+    const page = '/?page=';
+    let totalCount: number;
+    const pageCount = 10;
+    let currentCount: number;
+    let urls: string[] = [];
+    let data: any[] = [];
+    const requests: Observable<any>[] = [];
 
-  this.http.get(url1).subscribe( (response) => {
-    totalCount = response.count;
-    currentCount = response.results.length;    
-    urls = this.buildUrl(totalCount, pageCount, url1, page);
+    this.http.get(url1).subscribe((response: any) => {
+      totalCount = response.count;
+      currentCount = response.results.length;
+      urls = this.buildUrl(totalCount, pageCount, url1, page);
 
-    data = data.concat(response.results);
-    console.log('DATA  = %o', data);
-
-    urls.forEach( aUrl => {
-      requests.push(this.http.get(aUrl));
-    });
-    console.log(  ' requests  ===  %o', requests);
-
-    forkJoin(requests).subscribe( results => {
-      console.log('results  = %o', results);
-      results.forEach(element => {
-        data = data.concat(element.results);
-      });
+      data = data.concat(response.results);
       console.log('DATA  = %o', data);
-    }, err => {
-      console.error(err);
+
+      urls.forEach(aUrl => {
+        requests.push(this.http.get(aUrl));
+      });
+      console.log(' requests  ===  %o', requests);
+
+      forkJoin(requests).subscribe(results => {
+        console.log('results  = %o', results);
+        results.forEach(element => {
+          data = data.concat(element.results);
+        });
+        console.log('DATA  = %o', data);
+      }, err => {
+        console.error(err);
+      });
     });
-  });
-}
 
-private buildUrl(totalCount: number, pageCount: number, url: string , page: string): string[] {
-  let urls: string[] = [];
-  let pageNumber = Math.floor(totalCount / pageCount);
-  let pageIndex = 2;
+    data  = [];
+    this.http.get(url1).subscribe((response) => {
+   
+       urls = this.buildSameURL(100 , url1, page);
 
-  console.log(' pageNumber = %s', pageNumber);
-  // Le modulo est > 0 donc il faut faire un appel pagine de plus 
-  if ( (totalCount % pageCount) > 0 ) {
-    ++pageNumber;
-    console.log(' pageNumber update = %s', pageNumber);
+      data = data.concat(response.results);
+      console.log('\n\n\n========================\ First request  = %o', data);
+
+      urls.forEach(aUrl => {
+        requests.push(this.http.get(aUrl) );
+      });
+      console.log(' requests strinf to call  ===  %o', requests);
+
+      forkJoin(requests).subscribe(results => {
+        console.log(' Final results from each HTTP   = %o', results);
+        results.forEach(element => {
+          data = data.concat(element.results);
+        });
+        console.log(' All data   = %o', data);
+      }, err => {
+        console.error(err);
+      });
+    });
   }
 
-  for (let index = pageIndex; index <= pageNumber;  index++) {
-    urls.push(url + page + index);
+  private buildUrl(totalCount: number, pageCount: number, url: string, page: string): string[] {
+    const urls: string[] = [];
+    let pageNumber = Math.floor(totalCount / pageCount);
+    const  pageIndex = 2;
+
+    console.log(' pageNumber = %s', pageNumber);
+    // Le modulo est > 0 donc il faut faire un appel pagine de plus
+    if ((totalCount % pageCount) > 0) {
+      ++pageNumber;
+      console.log(' pageNumber update = %s', pageNumber);
+    }
+
+    for (let index = pageIndex; index <= pageNumber; index++) {
+      urls.push(url + page + index);
+    }
+    console.log(' URLS = %o', urls);
+    return urls;
   }
-  console.log(' URLS = %o', urls);
-  return urls;
-}
+
+  private buildSameURL(count: number, url: string, page: string): string[] {
+    const  urls: string[] = [];
+    const  pageNumber = 1;
+
+    console.log(' pageNumber = %s', pageNumber);
 
 
+    for (let index = 1; index <= count; index++) {
+      urls.push(url + page + pageNumber);
+    }
+    console.log(' URLS = %o', urls);
+    return urls;
+  }
 
 }
