@@ -3,8 +3,10 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment as env } from '../../../environments/environment';
 import * as mapboxgl from 'mapbox-gl';
+import * as turf from '@turf/turf';
 import { Layers } from '../../shared/models/map';
 import { markers } from '../mocks/sampleMarkers';
+import { FeatureCollection,  Geometry } from 'geojson';
 // import { FeatureCollection, Geometry, GeoJsonProperties } from 'geojson';
 
 @Injectable({
@@ -147,6 +149,7 @@ export class MapService {
         'icon-image': 'marker-15',
         'visibility': 'visible',
         'text-field': '{applicantName}',
+        'text-offset': [0, -2.5],
         'text-font': ['Open Sans Semibold', 'Arial Unicode MS Bold'],
 
       }
@@ -221,10 +224,9 @@ export class MapService {
 
     data  = [];
     this.http.get(url1).subscribe((response) => {
-   
-       urls = this.buildSameURL(100 , url1, page);
+       urls = this.buildSameURL(20 , url1, page);
 
-      data = data.concat(response.results);
+      data = data.concat((response as any).results);
       console.log('\n\n\n========================\ First request  = %o', data);
 
       urls.forEach(aUrl => {
@@ -277,4 +279,15 @@ export class MapService {
     return urls;
   }
 
+  /**
+   * update the data of the map with new random point from the sampleMarkers data
+   * @param num number of new feature to generate
+   */
+  public updateData(num: number) {
+    let newData: FeatureCollection<Geometry>;
+
+    newData = <FeatureCollection<Geometry>> turf.sample(markers as any, num);
+    console.log('updateData :  new data length=%s   data=%o', newData.features.length, newData);
+    (this.map.getSource(Layers.MARKERS.sourceName) as mapboxgl.GeoJSONSource).setData(newData);
+  }
 }

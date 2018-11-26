@@ -16,4 +16,10 @@ export class LeftMenuSidenavComponent implements OnInit {
     this.mapService.getLayers();
   }
 
+  private clickedButton(event) {
+    console.log(' Button clicked   event = %o', event);
+    let num = Math.floor(Math.random() * (150 - 20 + 1) + 20);
+    this.mapService.updateData(num);
+  }
+
 }
