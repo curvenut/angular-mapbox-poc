@@ -1,4 +1,5 @@
-import { Observable, forkJoin } from 'rxjs';
+ import { Observable, forkJoin } from 'rxjs';
+import { map, exhaustMap } from 'rxjs/operators';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment as env } from '../../../environments/environment';
@@ -6,7 +7,7 @@ import * as mapboxgl from 'mapbox-gl';
 import * as turf from '@turf/turf';
 import { Layers } from '../../shared/models/map';
 import { markers } from '../mocks/sampleMarkers';
-import { FeatureCollection,  Geometry } from 'geojson';
+import { FeatureCollection, Geometry } from 'geojson';
 // import { FeatureCollection, Geometry, GeoJsonProperties } from 'geojson';
 
 @Injectable({
@@ -188,7 +189,7 @@ export class MapService {
     console.log(' getLayers()');
   }
 
-  private testMultipleHttp() {
+  public testMultipleHttp() {
     const url1 = 'https://swapi.co/api/people';
     const page = '/?page=';
     let totalCount: number;
@@ -221,16 +222,67 @@ export class MapService {
         console.error(err);
       });
     });
+  }
 
-    data  = [];
+
+  public testMultipleHttpObs(): Observable<any[]> {
+    const url1 = 'https://swapi.co/api/people';
+    const page = '/?page=';
+    let totalCount: number;
+    const pageCount = 10;
+    let urls: string[] = [];
+    let data: any[] = [];
+    let currentCount: number;
+
+    const requests: Observable<any>[] = [];
+    console.log('*********************************** \n DATA  = %o', data);
+    return this.http.get(url1).pipe(
+      map((response: any) => {
+        totalCount = response.count;
+        currentCount = response.results.length;
+        urls = this.buildUrl(totalCount, pageCount, url1, page);
+
+        data = data.concat(response.results);
+        console.log('DATA  first call = %o', data);
+
+        urls.forEach(aUrl => {
+          requests.push(this.http.get(aUrl));
+        });
+        console.log(' requests  to call ===  %o', requests);
+        return requests;
+      }),
+      exhaustMap(req => {
+        return forkJoin(req).pipe(
+          map((results) => {
+            console.log('raw results  = %o', results);
+            results.forEach(element => {
+              data = data.concat(element.results);
+            });
+            console.log('concat result   = %o', data);
+            return data;
+          })
+        );
+      })
+    );
+
+  }
+
+  public testMultipleSameUrl() {
+    const url1 = 'https://swapi.co/api/people';
+    const page = '/?page=';
+    let urls: string[] = [];
+    let data: any[] = [];
+    const requests: Observable<any>[] = [];
+
+    data = [];
     this.http.get(url1).subscribe((response) => {
-       urls = this.buildSameURL(20 , url1, page);
+      urls = this.buildSameURL(20, url1, page);
 
       data = data.concat((response as any).results);
       console.log('\n\n\n========================\ First request  = %o', data);
 
       urls.forEach(aUrl => {
-        requests.push(this.http.get(aUrl) );
+        requests.push(this.http.get(aUrl));
       });
       console.log(' requests strinf to call  ===  %o', requests);
 
@@ -249,25 +301,22 @@ export class MapService {
   private buildUrl(totalCount: number, pageCount: number, url: string, page: string): string[] {
     const urls: string[] = [];
     let pageNumber = Math.floor(totalCount / pageCount);
-    const  pageIndex = 2;
+    const pageIndex = 2;
 
-    console.log(' pageNumber = %s', pageNumber);
     // Le modulo est > 0 donc il faut faire un appel pagine de plus
     if ((totalCount % pageCount) > 0) {
       ++pageNumber;
-      console.log(' pageNumber update = %s', pageNumber);
     }
 
     for (let index = pageIndex; index <= pageNumber; index++) {
       urls.push(url + page + index);
     }
-    console.log(' URLS = %o', urls);
     return urls;
   }
 
   private buildSameURL(count: number, url: string, page: string): string[] {
-    const  urls: string[] = [];
-    const  pageNumber = 1;
+    const urls: string[] = [];
+    const pageNumber = 1;
 
     console.log(' pageNumber = %s', pageNumber);
 
@@ -286,7 +335,7 @@ export class MapService {
   public updateData(num: number) {
     let newData: FeatureCollection<Geometry>;
 
-    newData = <FeatureCollection<Geometry>> turf.sample(markers as any, num);
+    newData = <FeatureCollection<Geometry>>turf.sample(markers as any, num);
     console.log('updateData :  new data length=%s   data=%o', newData.features.length, newData);
     (this.map.getSource(Layers.MARKERS.sourceName) as mapboxgl.GeoJSONSource).setData(newData);
   }
