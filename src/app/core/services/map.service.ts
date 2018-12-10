@@ -254,11 +254,11 @@ export class MapService {
       exhaustMap(req => {
         return forkJoin(req).pipe(
           map((results) => {
-            console.log('raw results  = %o', results);
+            console.log('raw ALL results  = %o', results);
             results.forEach(element => {
               data = data.concat(element.results);
             });
-            console.log('concat result   = %o', data);
+            console.log('concat ALL result   = %o', data);
             return data;
           })
         );

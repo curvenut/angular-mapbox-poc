@@ -8,14 +8,31 @@
 
   <mat-sidenav-content>
     <!-- <p><mat-checkbox [(ngModel)]="opened">>> </mat-checkbox></p> -->    
-    <button mat-icon-button (click)="sidenav.toggle()">
+<!--     <button mat-icon-button (click)="sidenav.toggle()" class= ".btn-toggle-sidenav" >
       <mat-icon *ngIf="sidenav.opened === false">menu</mat-icon>
       <mat-icon *ngIf="sidenav.opened === true">chevron_left</mat-icon>
-    </button>
+    </button> -->
+
+    <div class='map-overlay top'>
+        <div class='map-overlay-inner'>
+            <button mat-icon-button (click)="sidenav.toggle()"  >
+                <mat-icon *ngIf="sidenav.opened === false">menu</mat-icon>
+                <mat-icon *ngIf="sidenav.opened === true">chevron_left</mat-icon>
+              </button>
+        </div>      
+<!--       <div class='map-overlay-inner'>
+        <h2>Significant earthquakes in 2015</h2>
+        <label id='month'></label>
+        <input id='slider' type='range' min='0' max='11' step='1' value='0' />
+      </div>
+      <div class='map-overlay-inner'>
+        <div id='legend' class='legend'>
+          <div class='bar'></div>
+          <div>Magnitude (m)</div>
+        </div>
+      </div> -->
+    </div>
     <app-map></app-map>
-
-    
-
   </mat-sidenav-content>
 </mat-sidenav-container>
 
